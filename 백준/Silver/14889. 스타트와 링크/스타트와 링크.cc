@@ -4,67 +4,83 @@
 
 using namespace std;
 
-int arr[20][20];
+int arr[21][21];
+int N;
+
+// 재귀로 참조해야함. visted 배열이 하나 있어야함.
+// 백 트래킹으로.
+// 인자는 1개? 2개? depth 필수. now는? dfs하면서 선택된 값을 어떻게 저장함?
+// 전역 vector 따로 두고? 근데 visited 배열이 그 역할을 할거같은데..
+// 반대 편 정보는?
+bool visited[21];
+
+int min_diff = 1e9;
+
+void dfs(int idx, int depth)
+{
+	if (depth == N / 2)
+	{
+		// cost 계산
+		// start
+		vector<int> start;
+		vector<int> link;
+		
+		for (int i = 1; i <= N; i++)
+		{
+			if (visited[i]) start.push_back(i);
+			else link.push_back(i);
+		}
+
+		int sum_start = 0;
+		int sum_link = 0;
+
+		for (int i = 0; i < N / 2; i++)
+		{
+			for (int j = 0; j < N / 2; j++)
+			{
+				if (i == j) continue;
+				//arr[i][j]
+				sum_start += arr[start[i]][start[j]];
+				sum_link += arr[link[i]][link[j]];
+			}
+		}
+
+		// diff
+		int diff = abs(sum_start - sum_link);
+
+		// update min diff
+		if (min_diff > diff) min_diff = diff;
+		return;
+	}
+
+	for (int i = 1; i <= N; i++)
+	{
+		if (idx >= i) continue;
+		if (visited[i]) continue;
+
+		visited[i] = true;
+		dfs(i, depth + 1);
+		visited[i] = false;
+	}
+}
+
 
 int main()
 {
-	int n;
-	cin >> n;
-
-	for (int i = 0; i < n; i++)
+	cin >> N;
+	for (int i = 1; i <= N; i++)
 	{
-		for (int j = 0; j < n; j++)
+		for (int j = 1; j <= N; j++)
 		{
 			cin >> arr[i][j];
 		}
 	}
 
-	// n = 4 -> 1,2 / 1,3 / 1,4 / 2, 3 / 2, 4
-	// start가 결정되면, link는 어떻게 고르지??
-	// mark를 해두고, 마크 안된 걸 다 집어 넣기??
-
-	// n=6
-	// 1,2,3 -> 12, 13, 23, 21,23,32
-
-	
-
-	int min_diff = 1e9;
-
-	for (int i = 0; i < (1 << n); i++)
+	for (int i = 1; i <= N; i++)
 	{
-		if (__builtin_popcount(i) == n / 2)
-		{
-			int start_sum = 0;
-			int link_sum = 0;
-
-			vector<int> start;
-			vector<int> link;
-
-			for (int j = 0; j < n; j++)
-			{
-				if (i & (1 << j))
-				{
-					start.push_back(j + 1);
-				}
-				else
-				{
-					link.push_back(j + 1);
-				}
-			}
-
-			for (int x = 0; x < start.size(); x++)
-			{
-				for (int y = 0; y < start.size(); y++)
-				{
-					if (x == y) continue;
-					start_sum += arr[start[x] - 1][start[y] - 1];
-					link_sum += arr[link[x] - 1][link[y] - 1];
-				}
-			}
-
-			int diff = abs(start_sum - link_sum);
-			if (min_diff > diff) min_diff = diff;
-		}
+		visited[i] = true;
+		dfs(i, 1);
+		visited[i] = false;
 	}
 
 	cout << min_diff;
