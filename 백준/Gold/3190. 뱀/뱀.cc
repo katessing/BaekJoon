@@ -38,8 +38,9 @@ bool Wall()
 bool Touch()
 {
 	// head가 몸통과 겹치는지 체크
-	auto it = find(body.begin(), body.end(), head);
-	return it != body.end();
+	//auto it = find(body.begin(), body.end(), head);
+	auto [y, x] = head;
+	return map[y][x] == 2;
 }
 
 void Move(bool& is_wall, bool& is_touch)
@@ -49,6 +50,7 @@ void Move(bool& is_wall, bool& is_touch)
 	int nx = cx + dx[dir_idx];
 
 	body.push_back(head);
+	map[cy][cx] = 2;
 	head = { ny, nx };
 
 	is_wall = Wall();
@@ -56,7 +58,9 @@ void Move(bool& is_wall, bool& is_touch)
 
 	if (map[ny][nx] != 1)
 	{ // no
+		auto [py, px] = body.front();
 		body.pop_front();
+		map[py][px] = 0;
 	}
 	else
 	{
